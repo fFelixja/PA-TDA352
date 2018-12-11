@@ -136,6 +136,7 @@ Session.vim
 tags
 # Persistent undo
 [._]*.un~
+CryptoLibTest
 
 # End of https://www.gitignore.io/api/vim,emacs,macos,linux,haskell
 
