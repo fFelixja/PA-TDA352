@@ -39,11 +39,11 @@ get3rd (_,_,i) = i
 -- Fermat Witness. Tests values from 2 (inclusive) to n/3 (exclusive).
 -- Instead of picking random values a to test the primality of a number n,
 -- make a start from 2 and increment it by 1 at each new iteration, until you have tested all the values below n/3
-fermatPT :: Int -> (Int,[Int])
+fermatPT :: Int -> Int
 fermatPT n = case partition (\a -> gcd' n a == 1) [2..(n `div`3) - 1] of
                 (coprimes, divs) ->  case allFermats coprimes of
-                                        0 -> (head $ divs ++ [0],coprimes)
-                                        witness -> (witness,coprimes)
+                                        0 -> head $ divs ++ [0]
+                                        witness -> if mod n 2 == 0 then 2 else witness
              where
                allFermats [] = 0
                allFermats (x:xs) | fermatTheorem n x /= 1    = x
