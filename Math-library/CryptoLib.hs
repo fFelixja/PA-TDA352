@@ -67,4 +67,10 @@ modN' acc a b n = modN' ((acc*a) `mod` n) a (b-1) n
 -- two samples result in the same hash) -- where size is the number of
 -- different output values the hash function can produce.
 hashCP :: (Double, Double) -> Double
-hashCP (n_samples, size) = undefined
+hashCP (n_samples, size) = hashCP' 0 n_samples size
+hashCP' numInserted 1 totalSize = numInserted / totalSize
+hashCP' numInserted leftToInsert size =
+  let sizeLeft = size - numInserted
+      probNoInsertCollision = sizeLeft / size
+      probNoCollisionLater = 1 - hashCP' (numInserted + 1) (leftToInsert - 1) size
+  in (1 - (probNoInsertCollision * probNoCollisionLater))
