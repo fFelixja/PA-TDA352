@@ -8,7 +8,7 @@ import Data.List
 import CryptoLib
 
 main = do
-  let file = "input.txt"
+  let file = "Fiat-Shamir-input.txt"
   content <- readFile file
   let (n, pubX, runs) = parseInput content
   let m = recoverMessage n pubX runs
