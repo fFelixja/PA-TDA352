@@ -29,3 +29,21 @@ recoverMessage first_block encrypted = do
   -- TODO. Decrypt the message on the byte (Word8) representation. When you have
   -- the final message, convert it to a string a shown below.
   BC.unpack (B.pack encrypted)
+
+blockSize = 6 -- Unit: Word8.
+type Key = [Word8] -- List of `blockSize` Word8s.
+type Ciphertext = [Word8] -- First block is IV.
+type Plaintext = [Word8]
+decryptCbc :: Key -> Ciphertext -> [Word8]
+decryptCbc k ciphertext = let (iv, cs) = splitAt blockSize ciphertext
+                          in concat $ decryptCbc' k iv cs
+decryptCbc' _ _ [] = []
+decryptCbc' k prev ciphertext | length ciphertext < blockSize = let last = take blockSize $ ciphertext ++ repeat 0 -- pad at the end.
+                                                        in decryptCbc' k prev last
+                              | otherwise = let (c,cs) = splitAt blockSize ciphertext
+                                                m = xorWords (xorWords k prev) c
+                                                ms = decryptCbc' k c cs
+                                            in m:ms
+
+xorWords :: [Word8] -> [Word8] -> [Word8]
+xorWords ws1 ws2 = zipWith xor ws1 ws2
