@@ -29,3 +29,15 @@ recoverMessage first_block encrypted = do
   -- TODO. Decrypt the message on the byte (Word8) representation. When you have
   -- the final message, convert it to a string a shown below.
   BC.unpack (B.pack encrypted)
+
+-- | IV = 6725DD9E6DE08
+-- | bd = 199603177792
+-- | c1 = 823C1EE8E02D6
+recoverK :: [Word8] -> [Word8] -> [Word8]
+recoverK fb enc = let (iv,c1) = getIVC1 enc
+                          k = c1 `xor` (head fb) `xor` iv in iv:k:enc
+
+-- TODO Add blocksize var
+getIVC1 :: [Word8] -> (Word8,Word8)
+getIVC1 enc = let iv = take 6 enc
+                  c1 = take 6 $ drop 6 enc in (iv,c1)
