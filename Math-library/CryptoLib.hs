@@ -1,5 +1,6 @@
 module CryptoLib (eea, eulerPhi, modInv, fermatPT, hashCP) where
 
+import Prelude hiding (gcd)
 import Data.List
 
 -- | Returns a triple (gcd, s, t) such that gcd is the greatest common divisor
@@ -13,19 +14,24 @@ eea (a, b)
       let t' = -(a')*t + s
       (g,t,t')
 
-gcd' :: Int -> Int -> Int
-gcd'  a b = if a `mod` b == 0 then b else gcd' b (a `mod` b)
+gcd :: Int -> Int -> Int
+gcd  a b = if a `mod` b == 0 then b else gcd b (a `mod` b)
 
 -- | Returns Euler's Totient for the value n.
 eulerPhi :: Int -> Int
-eulerPhi n = -1
+eulerPhi n | n < 1 = 0
+           | otherwise = eulerPhi' 1 2 n
 
+eulerPhi' acc a n
+  | a < n = let acc' = if gcd a n  == 1 then acc + 1 else acc
+            in eulerPhi' acc' (a+1) n
+  | otherwise = acc
 -- | Returns the value v such that n*v = 1 (mod m).
 -- Returns 0 if the modular inverse does not exist.
 modInv :: (Int, Int) -> Int
 modInv (n, m)
         | n < 0 = modInv ((toPosMod m n), m)
-        | otherwise = if abs(gcd' m n) /= 1 then 0 else toPosMod m $ get3rd $ eea(m,n)
+        | otherwise = if abs(gcd m n) /= 1 then 0 else toPosMod m $ get3rd $ eea(m,n)
 
 toPosMod :: Int -> Int -> Int
 toPosMod m n | n < 0 = toPosMod m (n+m)
@@ -40,10 +46,10 @@ get3rd (_,_,i) = i
 -- Instead of picking random values a to test the primality of a number n,
 -- make a start from 2 and increment it by 1 at each new iteration, until you have tested all the values below n/3
 fermatPT :: Int -> Int
-fermatPT n = case partition (\a -> gcd' n a == 1) [2..(n `div`3) - 1] of
+fermatPT n = case partition (\a -> gcd n a == 1) [2..(n `div`3) - 1] of
                 (coprimes, divs) ->  case allFermats coprimes of
                                         0 -> head $ divs ++ [0]
-                                        witness -> if mod n 2 == 0 then 2 else witness
+                                        witness -> minimum (witness:divs)
              where
                allFermats [] = 0
                allFermats (x:xs) | fermatTheorem n x /= 1    = x
