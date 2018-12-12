@@ -5,6 +5,11 @@ import Data.Word (Word8)
 import System.IO.Unsafe (unsafePerformIO)
 import Data.Bits
 
+blockSize = 12 -- Unit: Word8.
+type Key = [Word8] -- List of `blockSize` Word8s.
+type Ciphertext = [Word8] -- First block is IV.
+type Plaintext = [Word8]
+
 main = do
   let file = "CBC-input.txt"
   content <- readFile file
@@ -23,28 +28,20 @@ parseInput content =
 -- | Recover the encrypted message, knowing the first block of plain text. The
 -- encrypted text is of the form IV | C0 | C1 |
 -- Each block is 12 bytes long.
-recoverMessage :: [Word8] -> [Word8] -> String
-recoverMessage first_block encrypted = do
+recoverMessage :: Plaintext -> Ciphertext -> String
+recoverMessage first_block encrypted = let (k,ct) = splitAt blockSize $ recoverK first_block encrypted
+                                           in BC.unpack (B.pack $ decryptCbc k ct)
 
-  -- TODO. Decrypt the message on the byte (Word8) representation. When you have
-  -- the final message, convert it to a string a shown below.
-  BC.unpack (B.pack encrypted)
-
--- | IV = 6725DD9E6DE08
--- | bd = 199603177792
--- | c1 = 823C1EE8E02D6
-recoverK :: [Word8] -> [Word8] -> [Word8]
+recoverK :: Plaintext -> Ciphertext -> [Word8]
 recoverK fb enc = let (iv,c1) = getIVC1 enc
-                          k = c1 `xor` (head fb) `xor` iv in iv:k:enc
+                      k = xorWords fb $ xorWords iv c1
+                      in k++enc
 
--- TODO Add blocksize var
-getIVC1 :: [Word8] -> (Word8,Word8)
-getIVC1 enc = let iv = take 6 enc
-                  c1 = take 6 $ drop 6 enc in (iv,c1)
-blockSize = 6 -- Unit: Word8.
-type Key = [Word8] -- List of `blockSize` Word8s.
-type Ciphertext = [Word8] -- First block is IV.
-type Plaintext = [Word8]
+getIVC1 :: Ciphertext -> (Ciphertext,Ciphertext)
+getIVC1 enc = let iv = take blockSize enc
+                  c1 = take blockSize $ drop blockSize enc in (iv,c1)
+
+
 decryptCbc :: Key -> Ciphertext -> [Word8]
 decryptCbc k ciphertext = let (iv, cs) = splitAt blockSize ciphertext
                           in concat $ decryptCbc' k iv cs
