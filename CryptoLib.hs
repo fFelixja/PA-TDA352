@@ -1,5 +1,6 @@
-module CryptoLib (eea, eulerPhi, modInv, fermatPT, hashCP, modInv') where
+module CryptoLib (eea, eea', eulerPhi, modInv, fermatPT, hashCP, modInv') where
 
+import Test.QuickCheck
 import Prelude hiding (gcd)
 import Data.List
 
@@ -78,3 +79,7 @@ hashCP' numInserted leftToInsert size =
       probNoInsertCollision = sizeLeft / size
       probNoCollisionLater = 1 - hashCP' (numInserted + 1) (leftToInsert - 1) size
   in (1 - (probNoInsertCollision * probNoCollisionLater))
+
+prop_eea' :: Integer -> Integer -> Bool
+prop_eea' a b = let (g, m, n) = eea' (a,b)
+                in  a * m + b * n == g
