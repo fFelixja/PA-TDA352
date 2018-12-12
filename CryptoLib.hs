@@ -1,4 +1,4 @@
-module CryptoLib (eea, eulerPhi, modInv, fermatPT, hashCP) where
+module CryptoLib (eea, eulerPhi, modInv, fermatPT, hashCP, modInv') where
 
 import Prelude hiding (gcd)
 import Data.List
@@ -6,16 +6,18 @@ import Data.List
 -- | Returns a triple (gcd, s, t) such that gcd is the greatest common divisor
 -- of a and b, and gcd = a*s + b*t.
 eea :: (Int, Int) -> (Int, Int, Int)
-eea (a, b)
+eea = eea'
+eea' (a, b)
   | (b == 0) || (a == b) = (a,1,0)
   | otherwise = do
-      let (g,s,t) = eea(b,a `mod` b)
+      let (g,s,t) = eea'(b,a `mod` b)
       let a' = a `div` b
       let t' = -(a')*t + s
       (g,t,t')
 
 gcd :: Int -> Int -> Int
-gcd  a b = if a `mod` b == 0 then b else gcd b (a `mod` b)
+gcd = gcd'
+gcd' a b = if a `mod` b == 0 then b else gcd' b (a `mod` b)
 
 -- | Returns Euler's Totient for the value n.
 eulerPhi :: Int -> Int
@@ -29,16 +31,18 @@ eulerPhi' acc a n
 -- | Returns the value v such that n*v = 1 (mod m).
 -- Returns 0 if the modular inverse does not exist.
 modInv :: (Int, Int) -> Int
-modInv (n, m)
-        | n < 0 = modInv ((toPosMod m n), m)
-        | otherwise = if abs(gcd m n) /= 1 then 0 else toPosMod m $ get3rd $ eea(m,n)
+modInv = fromIntegral . modInv'
 
-toPosMod :: Int -> Int -> Int
+modInv' :: Integral a => (a, a) -> a
+modInv' (n, m)
+        | n < 0 = modInv' ((toPosMod m n), m)
+        | otherwise = if abs(gcd' m n) /= 1 then 0 else toPosMod m $ get3rd $ eea'(m,n)
+
+toPosMod :: Integral a => a -> a -> a
 toPosMod m n | n < 0 = toPosMod m (n+m)
              | otherwise = n
 
 -- | Returns the third element
-get3rd :: (Int,Int,Int) -> Int
 get3rd (_,_,i) = i
 
 -- | Returns 0 if n is a Fermat Prime, otherwise it returns the lowest
