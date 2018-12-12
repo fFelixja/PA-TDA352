@@ -42,6 +42,9 @@ recoverMessage :: Integer -> Integer -> [[Integer]] -> Integer
 recoverMessage n pubX runs  = let info = collectInfo runs in 0
 
 
+
+
+
 -- | Collect __all__ R's from runs
 getRs :: [[Integer]] -> [Integer]
 getRs = map head
@@ -50,11 +53,11 @@ getRs = map head
 getSameRs :: [[Integer]] -> [Integer]
 getSameRs runs = let rs = getRs runs in nub $ rs \\ nub rs
 
--- TODO Do we need all occurance or only one? I assume all ^^
+-- TODO Do we need all or only one? I assume all ^^ßß
 -- Collect __all__ info from the __same__ R's in runs
 collectInfo :: [[Integer]] -> [[Integer]]
 collectInfo runs = let sRs = getSameRs runs in collectInfo' [[]] sRs runs --TODO change init value?
-collectInfo' acc _ [] = init acc -- Throw init value,
+collectInfo' acc _ [] = init acc -- Throw init value
 collectInfo' acc sRs (r:rs) = if (head r) `elem` sRs then collectInfo' (r:acc) sRs rs else collectInfo' acc sRs rs
 
 
