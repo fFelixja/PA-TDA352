@@ -2,8 +2,9 @@
 
 import Test.QuickCheck
 import CryptoLib
+import Math.NumberTheory.Powers.Cubes
 import qualified Data.Binary as B (encode)
-import qualified Data.ByteString.Char8 as BS (unpack, concat) 
+import qualified Data.ByteString.Char8 as BS (unpack, concat)
 import qualified Data.ByteString.Lazy as BL (toChunks)
 import qualified Data.Text as T (splitOn, pack, unpack)
 
@@ -33,14 +34,17 @@ parseInput content =
 -- | Try to recover the message that is encrypted three times under the
 -- same public key (e = 3) but different modulus (n).
 recoverMessage :: [Integer] -> [Integer] -> [Integer] -> Integer
-recoverMessage [n1,e1,c1] [n2,e2,c2] [n3,e3,c3] =
+recoverMessage [n1,e1,c1] [n2,e2,c2] [n3,e3,c3] = let (c', n') = chinese (c1,n1) (c2,n2)
+                                                      (c, n)   = chinese (c',n') (c3,n3)
+                                                      in integerCubeRoot c
+
   -- TODO. Sample code just sums the moduli.
-  n1 + n2 + n3
+  --n1 + n2 + n3
 
 chinese :: (Integer, Integer) -> (Integer, Integer) -> (Integer, Integer)
 -- Given x ≡ a1 mod n1
 -- and   x ≡ a2 mod n2
--- computes a such that
+-- where gcd(n1,n2) = 1, computes a such that
 --       x ≡ a  mod n1*n2
 chinese (a1, n1) (a2, n2) = let (1, m1, m2) = eea' (n1, n2)
                                 n = n1 * n2
