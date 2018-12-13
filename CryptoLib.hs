@@ -3,6 +3,7 @@ module CryptoLib (eea, eea', eulerPhi, eulerPhi', modInv, fermatPT, fermatPT', h
 import Test.QuickCheck
 import Prelude hiding (gcd)
 import Data.List
+import Data.Bits
 
 -- | Returns a triple (gcd, s, t) such that gcd is the greatest common divisor
 -- of a and b, and gcd = a*s + b*t.
@@ -64,24 +65,26 @@ fermatPT' n = case partition (\a -> gcd' n a == 1) [2..(n `div`3) - 1] of
                                  | otherwise                 = allFermats xs
                fermatTheorem n a = modN a (n-1) n
 
--- | a^b mod n
-modN :: Integral a => a -> a -> a -> a
-modN a b n = modN' 1 a b n
-modN' acc a b n | b < 0 = error "Can't raise to power"
-                | b == 0 = acc `mod` n
-                | otherwise = modN' ((acc*a) `mod` n) a (b-1) n
-
 powersOfTwo = iterate (*2) 1
 
-powersOfAN :: Integer -> Integer -> [Integer]
+powersOfAN :: Integral a => a -> a -> [a]
 powersOfAN a n = scanl (\acc _ -> (acc*acc) `mod` n) a [1..]
 
---fastPowN :: Integral a => a -> a -> a -> a
-fastPowN a b n =
-  let biggestPow = length $ takeWhile (<=b) powersOfTwo
-      pows = take biggestPow $ powersOfAN a n
-  in pows
+-- | a^b mod n
+modN :: (Bits a, Integral a) => a -> a -> a -> a
+modN a b n | b < 0 = error $ "No negative power."
+               | b == 0 = 1 `mod` n
+               | otherwise =
+  let biggestPow = length $ takeWhile (<=b) $ fromInteger <$> powersOfTwo
+      pows = reverse $ take biggestPow $ powersOfAN a n
+  in modN' pows b n 1
 
+modN' [] _ n acc = acc `mod` n
+modN' pows b n acc =
+  let currentBit = length pows - 1
+  in if testBit b currentBit
+        then modN' (tail pows) b n ((acc * head pows) `mod` n)
+        else modN' (tail pows) b n acc
 
 
 -- | Returns the probability that calling a perfect hash function with
