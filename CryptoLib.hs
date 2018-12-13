@@ -71,6 +71,19 @@ modN' acc a b n | b < 0 = error "Can't raise to power"
                 | b == 0 = acc `mod` n
                 | otherwise = modN' ((acc*a) `mod` n) a (b-1) n
 
+powersOfTwo = iterate (*2) 1
+
+powersOfAN :: Integer -> Integer -> [Integer]
+powersOfAN a n = scanl (\acc _ -> (acc*acc) `mod` n) a [1..]
+
+--fastPowN :: Integral a => a -> a -> a -> a
+fastPowN a b n =
+  let biggestPow = length $ takeWhile (<=b) powersOfTwo
+      pows = take biggestPow $ powersOfAN a n
+  in pows
+
+
+
 -- | Returns the probability that calling a perfect hash function with
 -- n_samples (uniformly distributed) will give one collision (i.e. that
 -- two samples result in the same hash) -- where size is the number of
