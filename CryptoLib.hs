@@ -1,4 +1,4 @@
-module CryptoLib (eea, eea', eulerPhi, modInv, fermatPT, hashCP, modInv') where
+module CryptoLib (eea, eea', eulerPhi, eulerPhi', modInv, fermatPT, fermatPT', hashCP, modInv', modN) where
 
 import Test.QuickCheck
 import Prelude hiding (gcd)
@@ -22,12 +22,14 @@ gcd' a b = if a `mod` b == 0 then b else gcd' b (a `mod` b)
 
 -- | Returns Euler's Totient for the value n.
 eulerPhi :: Int -> Int
-eulerPhi n | n < 1 = 0
-           | otherwise = eulerPhi' 1 2 n
+eulerPhi =  eulerPhi'
+eulerPhi' :: Integral a => a -> a
+eulerPhi' n | n < 1 = 0
+           | otherwise = eulerPhiAux 1 2 n
 
-eulerPhi' acc a n
-  | a < n = let acc' = if gcd a n  == 1 then acc + 1 else acc
-            in eulerPhi' acc' (a+1) n
+eulerPhiAux acc a n
+  | a < n = let acc' = if gcd' a n  == 1 then acc + 1 else acc
+            in eulerPhiAux acc' (a+1) n
   | otherwise = acc
 -- | Returns the value v such that n*v = 1 (mod m).
 -- Returns 0 if the modular inverse does not exist.
@@ -51,7 +53,8 @@ get3rd (_,_,i) = i
 -- Instead of picking random values a to test the primality of a number n,
 -- make a start from 2 and increment it by 1 at each new iteration, until you have tested all the values below n/3
 fermatPT :: Int -> Int
-fermatPT n = case partition (\a -> gcd n a == 1) [2..(n `div`3) - 1] of
+fermatPT = fermatPT'
+fermatPT' n = case partition (\a -> gcd' n a == 1) [2..(n `div`3) - 1] of
                 (coprimes, divs) ->  case allFermats coprimes of
                                         0 -> head $ divs ++ [0]
                                         witness -> minimum (witness:divs)
@@ -62,10 +65,11 @@ fermatPT n = case partition (\a -> gcd n a == 1) [2..(n `div`3) - 1] of
                fermatTheorem n a = modN a (n-1) n
 
 -- | a^b mod n
-modN :: Int -> Int -> Int -> Int
+modN :: Integral a => a -> a -> a -> a
 modN a b n = modN' 1 a b n
-modN' acc a 0 n = acc
-modN' acc a b n = modN' ((acc*a) `mod` n) a (b-1) n
+modN' acc a b n | b < 0 = error "Can't raise to power"
+                | b == 0 = acc `mod` n
+                | otherwise = modN' ((acc*a) `mod` n) a (b-1) n
 
 -- | Returns the probability that calling a perfect hash function with
 -- n_samples (uniformly distributed) will give one collision (i.e. that
@@ -83,3 +87,5 @@ hashCP' numInserted leftToInsert size =
 prop_eea' :: Integer -> Integer -> Bool
 prop_eea' a b = let (g, m, n) = eea' (a,b)
                 in  a * m + b * n == g
+
+prop_modN a b n = b >= 0  && n>0 ==> modN a b n == (mod (a^b) n)

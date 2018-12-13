@@ -38,9 +38,6 @@ recoverMessage [n1,e1,c1] [n2,e2,c2] [n3,e3,c3] = let (c', n') = chinese (c1,n1)
                                                       (c, n)   = chinese (c',n') (c3,n3)
                                                       in integerCubeRoot c
 
-  -- TODO. Sample code just sums the moduli.
-  --n1 + n2 + n3
-
 chinese :: (Integer, Integer) -> (Integer, Integer) -> (Integer, Integer)
 -- Given x ≡ a1 mod n1
 -- and   x ≡ a2 mod n2
