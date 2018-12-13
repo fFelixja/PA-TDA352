@@ -8,4 +8,4 @@ __CBC-Attack__: Intercepted a message that was encrypted using cipher-block chai
 
 __RSA-Attack__: The same message is encrypted using RSA to three different recipients. The enablers of the attack are (1) all recipients have the same public key (e = 3) and (2) the recipients have different modulus (N1, N2, N3) that are coprime.
 
-__ElGamal-Attack__: Two ElGamal encryptions of the same message can look completely different. However, this also makes the strength of the encryption depend on the random number generation, which here is weak.
+__ElGamal-Attack__: Two ElGamal encryptions of the same message can look completely different. However, this also makes the strength of the encryption depend on the random number generation, which is weak here.
