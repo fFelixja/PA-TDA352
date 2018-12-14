@@ -1,4 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
+module RSA where
 
 import Test.QuickCheck
 import CryptoLib

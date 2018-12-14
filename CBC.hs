@@ -1,3 +1,5 @@
+module CBC where
+
 import qualified Data.ByteString as B (unpack, pack)
 import qualified Data.ByteString.Char8 as BC (pack, unpack)
 import qualified Data.Hex as H (unhex)

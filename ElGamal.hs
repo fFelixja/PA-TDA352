@@ -1,4 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
+module ElGamal where
 
 import qualified Data.Binary as B (encode)
 import qualified Data.ByteString.Char8 as BS (unpack, concat)
