@@ -19,7 +19,7 @@ eea' (a, b)
 
 gcd :: Int -> Int -> Int
 gcd = gcd'
-gcd' a b = if a `mod` b == 0 then b else gcd' b (a `mod` b)
+gcd' a b = let (d, _, _) = eea' (a, b) in d
 
 -- | Returns Euler's Totient for the value n.
 eulerPhi :: Int -> Int
@@ -100,6 +100,7 @@ hashCP' numInserted leftToInsert size =
       probNoCollisionLater = 1 - hashCP' (numInserted + 1) (leftToInsert - 1) size
   in (1 - (probNoInsertCollision * probNoCollisionLater))
 
+-- QuickCheck tests.
 prop_eea' :: Integer -> Integer -> Bool
 prop_eea' a b = let (g, m, n) = eea' (a,b)
                 in  a * m + b * n == g
