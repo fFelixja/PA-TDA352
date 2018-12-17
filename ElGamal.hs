@@ -48,7 +48,6 @@ findRandomNumber c1 m g year month day hour minute second =
       cands = scanl (\(_,acc) idx -> (idx, g*acc `mod` m)) (0,gr) ms
       (Just (key, _)) = find (\(k, gk) -> gk == c1) cands
   in key + r
-    --return year*(1010) + month*(108) + day*(106) + hours*(104) + minute*(102) + second + millisecs;
 
 
 recoverMessage :: Integer -> Integer -> Integer -> Int -> Int -> Int -> Int ->
