@@ -1,7 +1,7 @@
 -- Compilation: ghc -o CryptoLibTest CryptoLibTest.hs
 -- Running: ./CryptoLibTest
 
-module Main where
+module CryptoLibTest where
 
 import CryptoLib
 
@@ -25,7 +25,7 @@ test_eea = do
               , ((150, 340), (10, -9, 4))
               ]
   testit tests eea "eea" (==)
-  
+
 test_eulerPhi :: IO ()
 test_eulerPhi = do
   let tests = [ (-1, 0)
