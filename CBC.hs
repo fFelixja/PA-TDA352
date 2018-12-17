@@ -34,6 +34,7 @@ recoverMessage :: Plaintext -> Ciphertext -> String
 recoverMessage first_block encrypted = let (k,ct) = splitAt blockSize $ recoverK first_block encrypted
                                            in BC.unpack (B.pack $ decryptCbc k ct)
 
+
 recoverK :: Plaintext -> Ciphertext -> [Word8]
 recoverK fb enc = let (iv,c1) = getIVC1 enc
                       k = xorWords fb $ xorWords iv c1
